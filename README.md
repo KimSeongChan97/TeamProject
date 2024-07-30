@@ -163,7 +163,8 @@ Oracle 연동
 ==============================================
 PPT 수정 240730
 
-[4-Company.pptx](https://github.com/user-attachments/files/16420294/4-Company.pptx)
+[4-Company.pptx](https://github.com/user-attachments/files/16423009/4-Company.pptx)
+(목차 순서 및 발표 메모 추가 )
 
 
 
