@@ -266,20 +266,21 @@ public class CompanyDAO {
 			while(rs.next()) {
 				name = rs.getString("name");
 			}
-			
-			pstmt = con.prepareStatement(sql4);
-			pstmt.setString(1,name);
-			pstmt.setString(2,id);
-			pstmt.setString(3,id);
-			pstmt.executeUpdate();
-			
-			pstmt = con.prepareStatement(sql2);
-			pstmt.setString(1,id);
-			pstmt.executeUpdate();
-			
-			pstmt = con.prepareStatement(sql3);
-			pstmt.setString(1,id);
-			pstmt.executeUpdate();
+			if(name != null) {
+				pstmt = con.prepareStatement(sql4);
+				pstmt.setString(1,name);
+				pstmt.setString(2,id);
+				pstmt.setString(3,id);
+				pstmt.executeUpdate();
+				
+				pstmt = con.prepareStatement(sql2);
+				pstmt.setString(1,id);
+				pstmt.executeUpdate();
+				
+				pstmt = con.prepareStatement(sql3);
+				pstmt.setString(1,id);
+				pstmt.executeUpdate();
+			}
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
