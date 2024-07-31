@@ -1,7 +1,8 @@
 [각 클래스 설명.txt](https://github.com/user-attachments/files/16437683/default.txt)
 
 PPT 수정 240730
-[4-Company.pptx](https://github.com/user-attachments/files/16434605/4-Company.pptx)
+[4-Company.pptx](https://github.com/user-attachments/files/16438692/4-Company.pptx)
+
 
 클래스 설명
 [Uploading 각 클래스CompanyDAO 클래스: 데이터베이스 연결 및 상호작용을 담당합니다. JDBC 드라이버를 로드하고, 데이터베이스 연결을 설정하며, 직원의 등록, 아이디 중복 체크, 직원 목록 출력, 로그인, 출퇴근 상태 업데이트, 퇴사 처리, 퇴사한 직원 목록 출력 등의 기능을 제공합니다. 이 클래스는 싱글톤 패턴을 사용하여 단일 인스턴스를 유지합니다.
