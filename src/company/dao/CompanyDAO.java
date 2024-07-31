@@ -38,11 +38,7 @@ public class CompanyDAO {
 	}
 	public void initialize() {	//company_attendance 테이블 이름 아이디빼고 초기화
 		getConnection();
-<<<<<<< HEAD
-		String sql = "update company_status set checkin_time = to_date('09:00','hh24:mi'), checkout_time = null, status = null, reason = null";
-=======
 		String sql = "update company_status set checkin_time = to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI'), checkout_time = null, status = '결근', reason = null";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 		 try {
 			pstmt = con.prepareStatement(sql);
 			
@@ -59,12 +55,8 @@ public class CompanyDAO {
 		}
 	}
 	//------------------------------------------------------------------------
-<<<<<<< HEAD
-	public void getConnection() {	//연결
-=======
 	//DB 연결
 	public void getConnection() {
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 		try {
 			con = DriverManager.getConnection(url, user, password);
 		} catch (SQLException e) {
@@ -72,18 +64,11 @@ public class CompanyDAO {
 		}
 	}
 	//------------------------------------------------------------------------
-<<<<<<< HEAD
-	public void regist(String name, String id, String pw, String phone) {	//입사
-		getConnection();
-		
-		String sql = "insert into company values(?,?,?,sysdate,?)";
-=======
 	// 1. 입사
-	public void regist(String name, String id, String pw, String phone) {	//입사
+	public void regist(String name, String id, String pw, String phone) {
 		getConnection();
 		
-		String sql = "insert into company values(?,?,?,?,sysdate,null,'N')";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
+		String sql = "insert into company values(?,?,?,?,sysdate)";
 		
 		try {
 			pstmt = con.prepareStatement(sql);
@@ -99,11 +84,7 @@ public class CompanyDAO {
 			e.printStackTrace();
 		}
 		
-<<<<<<< HEAD
-		String sql2 = "insert into company_status values(?, ?, to_date('09:00','hh24:mi'), null, null, null)";
-=======
-		String sql2 = "insert into company_status values(?, ?, to_date('09:00','hh24:mi'), null, '결근', null)";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
+		String sql2 = "insert into company_status values(?, ?, to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI'), null, '결근', null)";
 		try {
 			pstmt = con.prepareStatement(sql2);
 			
@@ -124,7 +105,8 @@ public class CompanyDAO {
 		}
 	}
 	//------------------------------------------------------------------------
-	public boolean isExistId(String id) {	//아이디 중복값 테스트
+	//아이디 중복 체크
+	public boolean isExistId(String id) {
 		boolean exist = false;
 		getConnection();	
 
@@ -157,11 +139,7 @@ public class CompanyDAO {
 	public void list(CompanyDTO companyDTO) {	//사원 목록
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		getConnection();
-<<<<<<< HEAD
-		String sql = "select * from company";
-=======
-		String sql = "select * from company,company_status where deleteyn = 'N'";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
+		String sql = "select * from company JOIN company_status ON company.id = company_status.id";
 		
 		try {
 			pstmt = con.prepareStatement(sql);
@@ -172,25 +150,6 @@ public class CompanyDAO {
 				System.out.println(rs.getString("name") + "\t" + 
 							       rs.getString("id") + "\t" + 
 							       sdf.format(rs.getDate("regist_day")) + "\t" + 
-<<<<<<< HEAD
-							       rs.getString("phone"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	//------------------------------------------------------------------------
-	public String delete(String id, String pw) {	//퇴사
-		String name = null;
-		getConnection();
-		
-		String sql1 = "delete from company where id = ? and pw = ?";
-		String sql2 = "delete from company_status where id = ?";
-		String sql3 = "select name from company where id = ? and pw = ?";
-		
-		try {
-			pstmt = con.prepareStatement(sql3);
-=======
 							       rs.getString("phone") + "\t" +
 							       rs.getString("status"));
 			}
@@ -207,7 +166,6 @@ public class CompanyDAO {
 		}
 	}
 	//------------------------------------------------------------------------
-
 	public String login(String id, String pw) {		//출결체크용 로그인
 		String name = null;		
 		getConnection();
@@ -237,13 +195,18 @@ public class CompanyDAO {
 		}
 		return name;
 	}
-	//------------------------------------------------------------------------	
+	//------------------------------------------------------------------------
 	public void checkin(String id) {		//출근
 		getConnection();
-		String sql = "update company_status set status = case when sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') then '출근' else '지각' end";
+		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') then '출근' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') then '지각' else status end where id = ?";
 		
 		try {
 			pstmt = con.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			pstmt.setString(2, id);
+			pstmt.setString(3, id);
+			
 			pstmt.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -257,11 +220,17 @@ public class CompanyDAO {
 			}
 		}
 	}
+	
 	public void checkout(String id) {		//퇴근
 		getConnection();
-		String sql = "update company_status set status = case when sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') then '조퇴' else '퇴근' end";
+		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') then '조퇴' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') then '퇴근' else status end where id = ?";
 		try {
 			pstmt = con.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			pstmt.setString(2, id);
+			pstmt.setString(3, id);
+			
 			pstmt.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -276,49 +245,21 @@ public class CompanyDAO {
 		}
 	}
 	//------------------------------------------------------------------------
-    public void addAttendance(String attendanceId, String companyId, String date, boolean isPresent) {
-    	
-        getConnection();
-        try {
-            // 데이터베이스 연결
-            // SQL 문
-            String sql = "update into company_status VALUES(?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, attendanceId);
-            pstmt.setString(2, companyId);
-            pstmt.setString(3, date);
-            pstmt.setBoolean(4, isPresent);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (pstmt != null) pstmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-            	try {
-            		if(pstmt != null) pstmt.close();
-            		if(con != null) con.close();
-            	} catch (SQLException e) {
-            		e.printStackTrace();
-            	} 
-            }
-        }
-   }
 	//퇴사
 	public String delete(String id, String pw) {
 		String name = null;
 		getConnection();
 		
+		//name값 가져오기
 		String sql1 = "select name from company where id = ? and pw = ?";
-		String sql2 = "update company set id = null, leave_day = sysdate , deleteyn = 'Y' where id = ?";
-		String sql3 = "delete from company_status where name = ?";
-		
+		//company 테이블에서 데이터삭제
+		String sql2 = "delete company where id = ?";
+		//company_status 테이블에서 데이터 삭제
+		String sql3 = "delete company_status where id = ?";
+		//leaveperson 테이블에 퇴사한 인원 데이터 삽입(초기화x)
+		String sql4 = "insert into leaveperson valeus(name, id, regist_day, leave_day) select ?, ?, regist_day,sysdate from company where id = ?";
 		try {
 			pstmt = con.prepareStatement(sql1);
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 			pstmt.setString(1, id);
 			pstmt.setString(2, pw);
 			rs = pstmt.executeQuery();
@@ -326,23 +267,18 @@ public class CompanyDAO {
 				name = rs.getString("name");
 			}
 			
-<<<<<<< HEAD
-			pstmt = con.prepareStatement(sql1);
-			pstmt.setString(1, id);
-			pstmt.setString(2, pw);
+			pstmt = con.prepareStatement(sql4);
+			pstmt.setString(1,name);
+			pstmt.setString(2,id);
+			pstmt.setString(3,id);
 			pstmt.executeUpdate();
 			
-			pstmt = con.prepareStatement(sql2);
-			pstmt.setString(1, id);
-=======
 			pstmt = con.prepareStatement(sql2);
 			pstmt.setString(1,id);
 			pstmt.executeUpdate();
 			
-			
 			pstmt = con.prepareStatement(sql3);
-			pstmt.setString(1,name);
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
+			pstmt.setString(1,id);
 			pstmt.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -358,21 +294,20 @@ public class CompanyDAO {
 		}
 		return name;
 	}
-<<<<<<< HEAD
-=======
 	//------------------------------------------------------------------------
 	//퇴사 사원 목록
 	public void leavelist(CompanyDTO companyDTO) {
 		getConnection();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String sql = "select name,leave_day,phone from company where deleteyn = 'Y'";
+		String sql = "select * from leaveperson";
 		try {
 			pstmt = con.prepareStatement(sql);
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
 				System.out.println(rs.getString("name") + "\t"
-						+ sdf.format(rs.getDate("leave_day")) + "\t"
-						+ rs.getString("phone"));
+						+ rs.getString("id") + "\t"
+						+ sdf.format(rs.getDate("regist_day")) + "\t"
+						+ sdf.format(rs.getDate("leave_day")));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -389,5 +324,4 @@ public class CompanyDAO {
 		
 	}
 	//------------------------------------------------------------------------
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 }

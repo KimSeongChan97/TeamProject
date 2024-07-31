@@ -1,35 +1,10 @@
 package company.bean;
 
 import lombok.Getter;
-<<<<<<< HEAD
-import lombok.NonNull;
-=======
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 import lombok.Setter;
 
 @Getter
 @Setter
-<<<<<<< HEAD
-public class CompanyDTO {
-	@NonNull
-	private String name;
-	@NonNull
-	private String id;
-	@NonNull
-	private String pw;
-	@NonNull
-	private String phone;
-	@NonNull
-	private String regist_day;
-	@NonNull
-	private String checkin_time;
-	@NonNull
-	private String checkout_time;
-	@NonNull
-	private String status;
-	@NonNull
-	private String reason;
-=======
 
 public class CompanyDTO {
 	private String name; //사원 이름
@@ -47,7 +22,6 @@ public class CompanyDTO {
 	private String status; //출근 , 퇴근 , 결근 , 지각
 	private String reason; //지각 이유 , 결근 이유 등등
 	
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 }
 
 
