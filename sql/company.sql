@@ -15,11 +15,10 @@ CREATE TABLE company_status (
     checkout_time DATE, -- 사원 퇴근 시간
     status VARCHAR2(15) DEFAULT '결근', -- 출근, 퇴근, 결근, 지각
     reason VARCHAR2(15), -- 지각 이유, 결근 이유 등등
-    checkin_count NUMBER DEFAULT 0, -- 출근 횟수
-    checkout_count NUMBER DEFAULT 0, -- 퇴근 횟수
+    late_count NUMBER DEFAULT 0, -- 지각 횟수
+    early_leave_count NUMBER DEFAULT 0, -- 조퇴 횟수
     vacation_days NUMBER DEFAULT 0 -- 휴가 일수
 );
-
 
 -- 출결 로그 테이블
 CREATE TABLE attendance_log (

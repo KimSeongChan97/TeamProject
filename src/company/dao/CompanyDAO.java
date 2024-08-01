@@ -42,21 +42,33 @@ public class CompanyDAO {
 
 	//------------------------------------------------------------------------
 	// 초기화 메서드: 데이터베이스 연결 후 company_status 테이블 초기화
-	public void initialize() {
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		try {
-			con = DriverManager.getConnection(url, user, password); // 데이터베이스 연결 설정
-			// 모든 직원의 출근 시간을 현재 날짜의 09:00으로 설정하고, 퇴근 시간은 null로 설정
-			String sql = "update company_status set status = '결근', reason = null";
-			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
-			pstmt.executeUpdate(); // SQL 쿼리 실행
-		} catch (SQLException e) {
-			e.printStackTrace(); // SQL 실행 중 예외 처리
-		} finally {
-			closeResources(pstmt, con); // 자원 해제
+		// 이 메서드는 데이터가 없는 경우에만 초기화를 수행하도록 조건을 설정함
+		public void initialize() {
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			try {
+				con = DriverManager.getConnection(url, user, password); // 데이터베이스 연결 설정
+				// 데이터가 이미 있는지 확인
+				String checkSql = "SELECT COUNT(*) FROM company_status";
+				pstmt = con.prepareStatement(checkSql); // SQL 쿼리 준비
+				rs = pstmt.executeQuery(); // SQL 쿼리 실행
+				rs.next();
+				int count = rs.getInt(1); // 테이블의 데이터 개수 확인
+
+				// 데이터가 없는 경우에만 초기화를 수행
+				if (count == 0) {
+					String sql = "update company_status set status = '결근', reason = null";
+					pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+					pstmt.executeUpdate(); // SQL 쿼리 실행
+				}
+			} catch (SQLException e) {
+				e.printStackTrace(); // SQL 실행 중 예외 처리
+			} finally {
+				closeResources(rs, pstmt, con); // 자원 해제
+			}
 		}
-	}
+
 
 	//------------------------------------------------------------------------
 	// 데이터베이스 연결을 설정하는 메서드
@@ -108,9 +120,9 @@ public class CompanyDAO {
 			con = getConnection(); // 데이터베이스 연결
 			// 회사 상태 테이블에 새로운 직원 상태 정보 삽입
 			String sql2 = "insert into company_status (name, id, checkin_time, checkout_time, status, reason, "
-					+ "checkin_count, checkout_count, vacation_days, last_checkin_time, last_checkout_time) "
+					+ "late_count, early_leave_count, vacation_days) "
 					+ "values (?, ?, to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI'), "
-					+ "null, '결근', null, 0, 0, 0, null, null)";
+					+ "null, '결근', null, 0, 0, 0)";
 			pstmt = con.prepareStatement(sql2); // SQL 쿼리 준비
 			pstmt.setString(1, name); // 첫 번째 ?에 이름 설정
 			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
@@ -153,7 +165,7 @@ public class CompanyDAO {
 		ResultSet rs = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // 날짜 형식을 지정하는 객체
 		String sql = "select company.name as company_name, company.id as company_id, company.regist_day, company.phone, "
-				+ "company_status.status, company_status.checkin_count, company_status.checkout_count "
+				+ "company_status.status, company_status.late_count, company_status.early_leave_count "
 				+ "from company join company_status on company.id = company_status.id"; // 사원 목록을 조회하는 SQL 쿼리
 		try {
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
@@ -170,8 +182,8 @@ public class CompanyDAO {
 						sdf.format(rs.getDate("regist_day")) + "\t" + 
 						rs.getString("phone") + "\t" +
 						status + "\t" +
-						rs.getInt("checkin_count") + "\t" +
-						rs.getInt("checkout_count") + "\t" 
+						rs.getInt("late_count") + "\t" +
+						rs.getInt("early_leave_count") + "\t" 
 						);
 			}
 		} catch (SQLException e) {
@@ -216,7 +228,7 @@ public class CompanyDAO {
 		}
 		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') "
 				+ "then '출근' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') "
-				+ "then '지각' else status end, checkin_count = checkin_count + 1, checkin_time = sysdate where id = ?";
+				+ "then '지각' else status end, late_count = late_count + 1, checkin_time = sysdate where id = ?";
 		try {
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
 			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
@@ -254,7 +266,7 @@ public class CompanyDAO {
 		}
 		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') "
 				+ "then '조퇴' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') "
-				+ "then '퇴근' else status end, checkout_count = checkout_count + 1, checkout_time = sysdate where id = ?";
+				+ "then '퇴근' else status end, early_leave_count = early_leave_count + 1, checkout_time = sysdate where id = ?";
 		try {
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
 			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
@@ -304,7 +316,51 @@ public class CompanyDAO {
 			closeResources(rs, pstmt, con); // 자원 해제
 		}
 	}
+	//------------------------------------------------------------------------
+	// 출근 여부 확인 메서드
+	public boolean isAlreadyCheckedIn(String id) {
+	    Connection con = getConnection(); // 데이터베이스 연결
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    boolean isCheckedIn = false; // 출근 여부를 저장할 변수
+	    String sql = "SELECT * FROM attendance_log WHERE id = ? AND action_type = '출근' AND action_time >= TRUNC(sysdate)";
+	    try {
+	        pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+	        pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+	        rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
+	        if (rs.next()) {
+	            isCheckedIn = true; // 결과 집합에 데이터가 있으면 이미 출근한 상태
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace(); // SQL 실행 중 예외 처리
+	    } finally {
+	        closeResources(rs, pstmt, con); // 자원 해제
+	    }
+	    return isCheckedIn; // 출근 여부 반환
+	}
 
+	// 퇴근 여부 확인 메서드
+	public boolean isAlreadyCheckedOut(String id) {
+	    Connection con = getConnection(); // 데이터베이스 연결
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    boolean isCheckedOut = false; // 퇴근 여부를 저장할 변수
+	    String sql = "SELECT * FROM attendance_log WHERE id = ? AND action_type = '퇴근' AND action_time >= TRUNC(sysdate)";
+	    try {
+	        pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+	        pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+	        rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
+	        if (rs.next()) {
+	            isCheckedOut = true; // 결과 집합에 데이터가 있으면 이미 퇴근한 상태
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace(); // SQL 실행 중 예외 처리
+	    } finally {
+	        closeResources(rs, pstmt, con); // 자원 해제
+	    }
+	    return isCheckedOut; // 퇴근 여부 반환
+	}
+	
 	//------------------------------------------------------------------------
 	// 휴가 설정 메서드
 	public void setVacation(String id, int days, String startDate, String endDate) {

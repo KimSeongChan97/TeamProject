@@ -1,7 +1,6 @@
 package company.service;
 
 import java.util.Scanner;
-
 import company.dao.CompanyDAO;
 
 public class CompanyAttendance implements Company {
@@ -11,23 +10,23 @@ public class CompanyAttendance implements Company {
     public void execute() {
         Scanner sc = new Scanner(System.in); // 사용자 입력을 받기 위한 Scanner 객체 생성
         CompanyDAO companyDAO = CompanyDAO.getInstance(); // CompanyDAO의 싱글톤 인스턴스 가져오기
-        
+
         // 사용자로부터 아이디와 비밀번호 입력 받기
         System.out.print("아이디 : ");
         String id = sc.next();
         System.out.print("비밀번호 : ");
         String pw = sc.next();
-        
+
         // 입력받은 아이디와 비밀번호로 로그인 시도
         String name = companyDAO.login(id, pw);
-        
-        if(name == null) {
+
+        if (name == null) {
             // 로그인 실패 시 메시지 출력
             System.out.println("아이디 또는 비밀번호가 맞지 않습니다.");
         } else {
             // 로그인 성공 시 환영 메시지와 메뉴 출력
             System.out.println(name + "님 로그인");
-            while(true) {
+            while (true) {
                 System.out.println("------------------");
                 System.out.println("1. 출근");
                 System.out.println("2. 퇴근");
@@ -37,12 +36,22 @@ public class CompanyAttendance implements Company {
                 System.out.println("------------------");
                 System.out.print("번호 입력 : ");
                 int n = sc.nextInt(); // 사용자 입력 번호
-                
-                if(n == 5) return; // 이전 메뉴로 돌아감
+
+                if (n == 5) return; // 이전 메뉴로 돌아감
                 else if (n == 1) {
-                    companyDAO.checkin(id); // 출근 체크
+                    if (companyDAO.isAlreadyCheckedIn(id)) {
+                        // 이미 출근한 경우 메시지 출력
+                        System.out.println("이미 출근하셨습니다.");
+                    } else {
+                        companyDAO.checkin(id); // 출근 체크
+                    }
                 } else if (n == 2) {
-                    companyDAO.checkout(id); // 퇴근 체크
+                    if (companyDAO.isAlreadyCheckedOut(id)) {
+                        // 이미 퇴근한 경우 메시지 출력
+                        System.out.println("이미 퇴근하셨습니다.");
+                    } else {
+                        companyDAO.checkout(id); // 퇴근 체크
+                    }
                 } else if (n == 3) {
                     System.out.print("휴가 일수를 입력하세요: ");
                     int days = sc.nextInt();
