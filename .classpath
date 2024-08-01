@@ -6,12 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-<<<<<<< HEAD
 	<classpathentry kind="lib" path="lib/lombok.jar"/>
 	<classpathentry kind="lib" path="lib/ojdbc11.jar"/>
-=======
-	<classpathentry kind="lib" path="lib/ojdbc11.jar"/>
-	<classpathentry kind="lib" path="lib/lombok.jar"/>
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 	<classpathentry kind="output" path="bin"/>
 </classpath>

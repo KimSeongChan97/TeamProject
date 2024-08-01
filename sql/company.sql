@@ -1,38 +1,47 @@
 -- 사원 테이블
-create table company(
-<<<<<<< HEAD
-name varchar2(15) not null,     --빈 값 불가
-id varchar2(30) primary key,    --기본 키
-pw varchar2(30) not null,       --빈 값 불가
-regist_day date not null,       --빈 값 불가
-phone varchar2(30) not null     --빈 값 불가
+CREATE TABLE company (
+    name VARCHAR2(15) NOT NULL, -- 사원 이름
+    id VARCHAR2(30) PRIMARY KEY, -- 사원 아이디
+    pw VARCHAR2(30) NOT NULL, -- 사원 비밀번호
+    phone VARCHAR2(30) NOT NULL, -- 사원 전화번호
+    regist_day DATE NOT NULL -- 사원 입사일
 );
 
-create table Company_Status(
-name varchar2(15) not null,     --빈 값 불가
-id varchar2(30) primary key,    --기본 키(중복불가능)
-checkin_time date not null,           --빈 값 불가
-checkout_time date,
-status varchar2(15) default '결근',  --기본값 '결근'
-reason varchar2(15)
-);
-=======
-name varchar2(15) not null,     -- 사원 이름
-id varchar2(30) primary key,    -- 사원 아이디
-pw varchar2(30) not null,       -- 사원 비밀번호
-phone varchar2(30) not null,    -- 사원 전화번호
-regist_day date not null,       -- 사원 입사일
-leave_day date,                 -- 사원 퇴사일
-deleteyn varchar2(1) default 'N' --기본값 'N'
+-- 출결 체크 테이블
+CREATE TABLE company_status (
+    id VARCHAR2(30) PRIMARY KEY, -- 사원 아이디
+    name VARCHAR2(15) NOT NULL, -- 사원 이름
+    checkin_time DATE, -- 사원 출근 시간
+    checkout_time DATE, -- 사원 퇴근 시간
+    status VARCHAR2(15) DEFAULT '결근', -- 출근, 퇴근, 결근, 지각
+    reason VARCHAR2(15), -- 지각 이유, 결근 이유 등등
+    checkin_count NUMBER DEFAULT 0, -- 출근 횟수
+    checkout_count NUMBER DEFAULT 0, -- 퇴근 횟수
+    vacation_days NUMBER DEFAULT 0 -- 휴가 일수
 );
 
--- 출결체크 테이블
-create table Company_Status(
-name varchar2(15) not null,         -- 사원 이름
-id varchar2(30) primary key,        -- 사원 아이디
-checkin_time date not null,         -- 사원 출근 시간
-checkout_time date,                 -- 사원 퇴근 시간
-status varchar2(15) default '결근',  -- 출근 , 퇴근 , 결근 , 지각
-reason varchar2(15)                 -- 지각이유 , 결근이유 등등
+
+-- 출결 로그 테이블
+CREATE TABLE attendance_log (
+    id VARCHAR2(30) NOT NULL, -- 사원 아이디
+    action_type VARCHAR2(10) NOT NULL, -- '출근' 또는 '퇴근'
+    action_time DATE NOT NULL, -- 출근 또는 퇴근 시간
+    CONSTRAINT fk_attendance_log_id FOREIGN KEY (id) REFERENCES company(id) -- 외래 키 설정
 );
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
+
+-- 퇴사 사원 테이블
+CREATE TABLE leaveperson (
+    name VARCHAR2(15) NOT NULL, -- 퇴사 사원 이름
+    id VARCHAR2(30) NOT NULL, -- 퇴사 사원 아이디
+    regist_day DATE NOT NULL, -- 입사 날짜
+    leave_day DATE NOT NULL -- 퇴사 날짜
+);
+
+-- 휴가 테이블
+CREATE TABLE vacation (
+    id VARCHAR2(30) NOT NULL, -- 사원 아이디
+    start_date DATE NOT NULL, -- 휴가 시작 날짜
+    end_date DATE NOT NULL, -- 휴가 종료 날짜
+    days NUMBER NOT NULL, -- 휴가 일수
+    CONSTRAINT fk_vacation_id FOREIGN KEY (id) REFERENCES company(id) -- 외래 키 설정
+);

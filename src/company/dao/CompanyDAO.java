@@ -10,384 +10,439 @@ import java.text.SimpleDateFormat;
 import company.bean.CompanyDTO;
 
 public class CompanyDAO {
-	private String driver = "oracle.jdbc.driver.OracleDriver";
-	private String url = "jdbc:oracle:thin:@localhost:1521:xe";
-	private String user = "c##java";
-	private String password = "1234";
-	
-	private Connection con;				//인터페이스
-	private PreparedStatement pstmt;	//인터페이스
-	private ResultSet rs;				//인터페이스
-	
-	private static CompanyDAO instance = new CompanyDAO();
-	
+	// 데이터베이스 연결에 필요한 정보들
+	private String driver = "oracle.jdbc.driver.OracleDriver"; // 오라클 JDBC 드라이버 클래스
+	private String url = "jdbc:oracle:thin:@localhost:1521:xe"; // 데이터베이스 연결 URL
+	private String user = "c##java"; // 데이터베이스 접속 사용자명
+	private String password = "1234"; // 데이터베이스 접속 비밀번호
+
+	private static CompanyDAO instance = new CompanyDAO(); // 싱글톤 패턴을 사용한 CompanyDAO 객체 생성
+
 	//------------------------------------------------------------------------
+	// 생성자: 객체가 생성될 때 JDBC 드라이버를 로드함
 	public CompanyDAO() {
 		try {
-			Class.forName(driver);		//생성
+			Class.forName(driver); // JDBC 드라이버를 메모리에 로드
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			e.printStackTrace(); // 드라이버 클래스가 없을 때 예외 처리
 		}
 	}
+
 	//------------------------------------------------------------------------
+	// 싱글톤 패턴: 유일한 인스턴스를 반환함
 	public static CompanyDAO getInstance() {
-		return instance;
+		return instance; // 싱글톤 인스턴스를 반환
 	}
-	static {	//company_attendance 테이블 이름 아이디빼고 초기화
-		instance.initialize();
-	}
-	public void initialize() {	//company_attendance 테이블 이름 아이디빼고 초기화
-		getConnection();
-<<<<<<< HEAD
-		String sql = "update company_status set checkin_time = to_date('09:00','hh24:mi'), checkout_time = null, status = null, reason = null";
-=======
-		String sql = "update company_status set checkin_time = to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI'), checkout_time = null, status = '결근', reason = null";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
-		 try {
-			pstmt = con.prepareStatement(sql);
-			
-			pstmt.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}	
-		}
-	}
+
 	//------------------------------------------------------------------------
-<<<<<<< HEAD
-	public void getConnection() {	//연결
-=======
-	//DB 연결
-	public void getConnection() {
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
+	// 클래스가 로드될 때 실행되는 초기화 블록
+	static {    
+		instance.initialize(); // 인스턴스 초기화 메서드 호출
+	}
+
+	//------------------------------------------------------------------------
+	// 초기화 메서드: 데이터베이스 연결 후 company_status 테이블 초기화
+	public void initialize() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
 		try {
-			con = DriverManager.getConnection(url, user, password);
+			con = DriverManager.getConnection(url, user, password); // 데이터베이스 연결 설정
+			// 모든 직원의 출근 시간을 현재 날짜의 09:00으로 설정하고, 퇴근 시간은 null로 설정
+			String sql = "update company_status set status = '결근', reason = null";
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.executeUpdate(); // SQL 쿼리 실행
 		} catch (SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
 		}
 	}
+
 	//------------------------------------------------------------------------
-<<<<<<< HEAD
-	public void regist(String name, String id, String pw, String phone) {	//입사
-		getConnection();
-		
-		String sql = "insert into company values(?,?,?,sysdate,?)";
-=======
-	// 1. 입사
-	public void regist(String name, String id, String pw, String phone) {	//입사
-		getConnection();
-		
-		String sql = "insert into company values(?,?,?,?,sysdate,null,'N')";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
-		
+	// 데이터베이스 연결을 설정하는 메서드
+	private Connection getConnection() {
+		Connection con = null;
 		try {
-			pstmt = con.prepareStatement(sql);
-			
-			pstmt.setString(1,name);
-			pstmt.setString(2,id);
-			pstmt.setString(3,pw);
-			pstmt.setString(4,phone);
-			
-			pstmt.executeUpdate();
-			
+			con = DriverManager.getConnection(url, user, password); // 데이터베이스 연결 설정
 		} catch (SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace(); // 데이터베이스 연결 중 예외 처리
 		}
-		
-<<<<<<< HEAD
-		String sql2 = "insert into company_status values(?, ?, to_date('09:00','hh24:mi'), null, null, null)";
-=======
-		String sql2 = "insert into company_status values(?, ?, to_date('09:00','hh24:mi'), null, '결근', null)";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
-		try {
-			pstmt = con.prepareStatement(sql2);
-			
-			pstmt.setString(1,name);
-			pstmt.setString(2,id);
-			
-			pstmt.executeUpdate();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}	
+		return con;
+	}
+
+	//------------------------------------------------------------------------
+	// 자원 해제 메서드
+	private void closeResources(AutoCloseable... resources) {
+		for (AutoCloseable resource : resources) {
+			if (resource != null) {
+				try {
+					resource.close(); // 자원 해제
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
+
 	//------------------------------------------------------------------------
-	public boolean isExistId(String id) {	//아이디 중복값 테스트
+	// 1. 입사 처리 메서드
+	public void regist(String name, String id, String pw, String phone) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		try {
+			// 회사 테이블에 새로운 직원 정보 삽입
+			String sql = "insert into company values(?,?,?,?,sysdate)";
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, name); // 첫 번째 ?에 이름 설정
+			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
+			pstmt.setString(3, pw); // 세 번째 ?에 비밀번호 설정
+			pstmt.setString(4, phone); // 네 번째 ?에 전화번호 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+
+		try {
+			con = getConnection(); // 데이터베이스 연결
+			// 회사 상태 테이블에 새로운 직원 상태 정보 삽입
+			String sql2 = "insert into company_status (name, id, checkin_time, checkout_time, status, reason, "
+					+ "checkin_count, checkout_count, vacation_days, last_checkin_time, last_checkout_time) "
+					+ "values (?, ?, to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI'), "
+					+ "null, '결근', null, 0, 0, 0, null, null)";
+			pstmt = con.prepareStatement(sql2); // SQL 쿼리 준비
+			pstmt.setString(1, name); // 첫 번째 ?에 이름 설정
+			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+	}
+
+	//------------------------------------------------------------------------
+	// 아이디 중복 체크 메서드
+	public boolean isExistId(String id) {
 		boolean exist = false;
-		getConnection();	
-
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try {
-			String sql = "select * from company where id = ?";
-
-			pstmt = con.prepareStatement(sql);
-			pstmt.setString(1,id);
-			
-			rs = pstmt.executeQuery();
+			String sql = "select * from company where id = ?"; // 아이디 중복 여부를 확인하는 SQL 쿼리
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
 			if(rs.next()) {
-				exist = true;
+				exist = true; // 결과 집합에 데이터가 있으면 아이디가 중복됨
 			}
-
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally {
-			try {
-				if(rs != null) rs.close();
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
 		}
-		return exist;
+		return exist; // 아이디 중복 여부 반환
 	}
+
 	//------------------------------------------------------------------------
-	public void list(CompanyDTO companyDTO) {	//사원 목록
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		getConnection();
-<<<<<<< HEAD
-		String sql = "select * from company";
-=======
-		String sql = "select * from company,company_status where deleteyn = 'N'";
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
-		
+	// 사원 목록 출력 메서드
+	public void list(CompanyDTO companyDTO) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // 날짜 형식을 지정하는 객체
+		String sql = "select company.name as company_name, company.id as company_id, company.regist_day, company.phone, "
+				+ "company_status.status, company_status.checkin_count, company_status.checkout_count "
+				+ "from company join company_status on company.id = company_status.id"; // 사원 목록을 조회하는 SQL 쿼리
 		try {
-			pstmt = con.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
-			
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
 			while(rs.next()) {
-				System.out.println(rs.getString("name") + "\t" + 
-							       rs.getString("id") + "\t" + 
-							       sdf.format(rs.getDate("regist_day")) + "\t" + 
-<<<<<<< HEAD
-							       rs.getString("phone"));
+				String id = rs.getString("company_id"); // 사원 아이디 가져오기
+				String status = rs.getString("status"); // 출결 상태 가져오기
+				if (isOnVacation(id)) { // 휴가 중인 경우 상태를 '휴가'로 변경
+					status = "휴가";
+				}
+				// 사원 정보를 출력
+				System.out.println(rs.getString("company_name") + "\t" + 
+						rs.getString("company_id") + "\t" + 
+						sdf.format(rs.getDate("regist_day")) + "\t" + 
+						rs.getString("phone") + "\t" +
+						status + "\t" +
+						rs.getInt("checkin_count") + "\t" +
+						rs.getInt("checkout_count") + "\t" 
+						);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
 		}
 	}
+
 	//------------------------------------------------------------------------
-	public String delete(String id, String pw) {	//퇴사
-		String name = null;
-		getConnection();
-		
-		String sql1 = "delete from company where id = ? and pw = ?";
-		String sql2 = "delete from company_status where id = ?";
-		String sql3 = "select name from company where id = ? and pw = ?";
-		
+	// 출결 체크용 로그인 메서드
+	public String login(String id, String pw) {
+		String name = null;        
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = "select * from company where id = ? and pw = ?"; // 아이디와 비밀번호로 로그인 확인하는 SQL 쿼리
 		try {
-			pstmt = con.prepareStatement(sql3);
-=======
-							       rs.getString("phone") + "\t" +
-							       rs.getString("status"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				if(rs != null) rs.close();
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	//------------------------------------------------------------------------
-
-	public String login(String id, String pw) {		//출결체크용 로그인
-		String name = null;		
-		getConnection();
-
-		String sql = "Select * from company where id = ? and pw = ?";
-
-		try {
-			pstmt = con.prepareStatement(sql);
-			pstmt.setString(1, id);
-			pstmt.setString(2, pw);
-			
-			rs = pstmt.executeQuery();
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.setString(2, pw); // 두 번째 ?에 비밀번호 설정
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
 			while(rs.next()) {
-				name = rs.getString("name");
+				name = rs.getString("name"); // 결과 집합에서 이름 추출
 			}
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
+		}
+		return name; // 로그인된 사용자의 이름 반환
+	}
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				if(rs != null) rs.close();
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return name;
-	}
-	//------------------------------------------------------------------------	
-	public void checkin(String id) {		//출근
-		getConnection();
-		String sql = "update company_status set status = case when sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') then '출근' else '지각' end";
-		
-		try {
-			pstmt = con.prepareStatement(sql);
-			pstmt.executeUpdate();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	public void checkout(String id) {		//퇴근
-		getConnection();
-		String sql = "update company_status set status = case when sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') then '조퇴' else '퇴근' end";
-		try {
-			pstmt = con.prepareStatement(sql);
-			pstmt.executeUpdate();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}finally {
-			try {
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 	//------------------------------------------------------------------------
-    public void addAttendance(String attendanceId, String companyId, String date, boolean isPresent) {
-    	
-        getConnection();
-        try {
-            // 데이터베이스 연결
-            // SQL 문
-            String sql = "update into company_status VALUES(?, ?, ?, ?)";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setString(1, attendanceId);
-            pstmt.setString(2, companyId);
-            pstmt.setString(3, date);
-            pstmt.setBoolean(4, isPresent);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (pstmt != null) pstmt.close();
-                if (con != null) con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-            	try {
-            		if(pstmt != null) pstmt.close();
-            		if(con != null) con.close();
-            	} catch (SQLException e) {
-            		e.printStackTrace();
-            	} 
-            }
-        }
-   }
-	//퇴사
+	// 출근 체크 메서드
+	public void checkin(String id) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		if (isOnVacation(id)) {
+			System.out.println("현재 휴가 중입니다. 출근할 수 없습니다.");
+			return;
+		}
+		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') "
+				+ "then '출근' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') "
+				+ "then '지각' else status end, checkin_count = checkin_count + 1, checkin_time = sysdate where id = ?";
+		try {
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
+			pstmt.setString(3, id); // 세 번째 ?에 아이디 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+
+		try {
+			con = getConnection(); // 데이터베이스 연결
+			// 출근 기록을 attendance_log 테이블에 추가
+			String sqlLog = "insert into attendance_log (id, action_type, action_time) values (?, '출근', sysdate)";
+			pstmt = con.prepareStatement(sqlLog); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+	}
+
+	//------------------------------------------------------------------------
+	// 퇴근 체크 메서드
+	public void checkout(String id) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		if (isOnVacation(id)) {
+			System.out.println("현재 휴가 중입니다. 퇴근할 수 없습니다.");
+			return;
+		}
+		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') "
+				+ "then '조퇴' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') "
+				+ "then '퇴근' else status end, checkout_count = checkout_count + 1, checkout_time = sysdate where id = ?";
+		try {
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
+			pstmt.setString(3, id); // 세 번째 ?에 아이디 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+
+		try {
+			con = getConnection(); // 데이터베이스 연결
+			// 퇴근 기록을 attendance_log 테이블에 추가
+			String sqlLog = "insert into attendance_log (id, action_type, action_time) values (?, '퇴근', sysdate)";
+			pstmt = con.prepareStatement(sqlLog); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+	}
+
+	//------------------------------------------------------------------------
+	// 출퇴근 기록 조회 메서드
+	public void getAttendanceLogs(String id) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 날짜 형식을 지정하는 객체
+		String sql = "SELECT * FROM attendance_log WHERE id = ? ORDER BY action_time";
+		try {
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
+			while(rs.next()) {
+				// 출퇴근 기록을 출력
+				System.out.println(rs.getString("action_type") + "\t" + 
+						sdf.format(rs.getDate("action_time")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
+		}
+	}
+
+	//------------------------------------------------------------------------
+	// 휴가 설정 메서드
+	public void setVacation(String id, int days, String startDate, String endDate) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		String sql = "INSERT INTO vacation (id, start_date, end_date, days) VALUES (?, ?, ?, ?)";
+		try {
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.setDate(2, java.sql.Date.valueOf(startDate)); // 두 번째 ?에 시작 날짜 설정
+			pstmt.setDate(3, java.sql.Date.valueOf(endDate)); // 세 번째 ?에 종료 날짜 설정
+			pstmt.setInt(4, days); // 네 번째 ?에 휴가 일수 설정
+			pstmt.executeUpdate(); // SQL 쿼리 실행
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(pstmt, con); // 자원 해제
+		}
+	}
+
+	//------------------------------------------------------------------------
+	// 휴가 상세 정보 조회 메서드
+	public void getVacationDetails(String id) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = "SELECT * FROM vacation WHERE id = ?";
+		try {
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
+			while(rs.next()) {
+				// 휴가 정보 출력
+				System.out.println("휴가 시작 날짜: " + rs.getDate("start_date") + 
+						", 휴가 종료 날짜: " + rs.getDate("end_date") + 
+						", 휴가 일수: " + rs.getInt("days"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
+		}
+	}
+
+	//------------------------------------------------------------------------
+	// 휴가 중 여부 확인 메서드
+	public boolean isOnVacation(String id) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		boolean onVacation = false; // 휴가 여부를 저장할 변수
+		String sql = "SELECT * FROM vacation WHERE id = ? AND start_date <= sysdate AND end_date >= sysdate";
+		try {
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
+			if (rs.next()) {
+				onVacation = true; // 결과 집합에 데이터가 있으면 휴가 중임
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
+		}
+		return onVacation; // 휴가 여부 반환
+	}
+
+	//------------------------------------------------------------------------
+	// 퇴사 처리 메서드
 	public String delete(String id, String pw) {
-		String name = null;
-		getConnection();
-		
-		String sql1 = "select name from company where id = ? and pw = ?";
-		String sql2 = "update company set id = null, leave_day = sysdate , deleteyn = 'Y' where id = ?";
-		String sql3 = "delete from company_status where name = ?";
-		
+		String name = null; // 퇴사자의 이름을 저장할 변수
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 		try {
-			pstmt = con.prepareStatement(sql1);
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
-			pstmt.setString(1, id);
-			pstmt.setString(2, pw);
-			rs = pstmt.executeQuery();
+			// 퇴사자의 이름을 가져오는 SQL 쿼리
+			String sql1 = "select name from company where id = ? and pw = ?";
+			pstmt = con.prepareStatement(sql1); // SQL 쿼리 준비
+			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+			pstmt.setString(2, pw); // 두 번째 ?에 비밀번호 설정
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
 			while(rs.next()) {
-				name = rs.getString("name");
+				name = rs.getString("name"); // 결과 집합에서 이름 추출
 			}
-			
-<<<<<<< HEAD
-			pstmt = con.prepareStatement(sql1);
-			pstmt.setString(1, id);
-			pstmt.setString(2, pw);
-			pstmt.executeUpdate();
-			
-			pstmt = con.prepareStatement(sql2);
-			pstmt.setString(1, id);
-=======
-			pstmt = con.prepareStatement(sql2);
-			pstmt.setString(1,id);
-			pstmt.executeUpdate();
-			
-			
-			pstmt = con.prepareStatement(sql3);
-			pstmt.setString(1,name);
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
-			pstmt.executeUpdate();
-			
+			if(name != null) {
+				// 퇴사한 인원의 데이터를 leaveperson 테이블에 삽입
+				String sql4 = "insert into leaveperson values(?, ?, (select regist_day from company where id = ?), sysdate)";
+				pstmt = con.prepareStatement(sql4); // SQL 쿼리 준비
+				pstmt.setString(1, name); // 첫 번째 ?에 이름 설정
+				pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
+				pstmt.setString(3, id); // 세 번째 ?에 아이디 설정
+				pstmt.executeUpdate(); // SQL 쿼리 실행
+
+				// 회사 테이블에서 데이터를 삭제
+				String sql2 = "delete from company where id = ?";
+				pstmt = con.prepareStatement(sql2); // SQL 쿼리 준비
+				pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+				pstmt.executeUpdate(); // SQL 쿼리 실행
+
+				// 회사 상태 테이블에서 데이터를 삭제
+				String sql3 = "delete from company_status where id = ?";
+				pstmt = con.prepareStatement(sql3); // SQL 쿼리 준비
+				pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
+				pstmt.executeUpdate(); // SQL 쿼리 실행
+			}
+
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally {
-			try {
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} 
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
 		}
-		return name;
+		return name; // 퇴사자의 이름 반환
 	}
-<<<<<<< HEAD
-=======
+
 	//------------------------------------------------------------------------
-	//퇴사 사원 목록
+	// 퇴사 사원 목록 출력 메서드
 	public void leavelist(CompanyDTO companyDTO) {
-		getConnection();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String sql = "select name,leave_day,phone from company where deleteyn = 'Y'";
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // 날짜 형식을 지정하는 객체
+		String sql = "select * from leaveperson"; // leaveperson 테이블에서 모든 데이터를 가져오는 SQL 쿼리
 		try {
-			pstmt = con.prepareStatement(sql);
-			rs = pstmt.executeQuery();
+			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
+			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
 			while(rs.next()) {
+				// 결과 집합에서 각 행의 데이터를 출력
 				System.out.println(rs.getString("name") + "\t"
-						+ sdf.format(rs.getDate("leave_day")) + "\t"
-						+ rs.getString("phone"));
+						+ rs.getString("id") + "\t"
+						+ sdf.format(rs.getDate("regist_day")) + "\t"
+						+ sdf.format(rs.getDate("leave_day")));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally {
-			try {
-				if(rs != null) rs.close();
-				if(pstmt != null) pstmt.close();
-				if(con != null) con.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} 
+			e.printStackTrace(); // SQL 실행 중 예외 처리
+		} finally {
+			closeResources(rs, pstmt, con); // 자원 해제
 		}
-		
 	}
+
 	//------------------------------------------------------------------------
->>>>>>> 6500417 (리스트반복수정이전30일최종본)
 }
