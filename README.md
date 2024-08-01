@@ -1,7 +1,8 @@
 [각 클래스 설명.txt](https://github.com/user-attachments/files/16437683/default.txt)
 
-PPT 수정 240730
-[4-Company.pptx](https://github.com/user-attachments/files/16438692/4-Company.pptx)
+PPT 수정 240731
+
+[4-Company.pptx](https://github.com/user-attachments/files/16448268/4-Company.pptx)
 
 
 클래스 설명
