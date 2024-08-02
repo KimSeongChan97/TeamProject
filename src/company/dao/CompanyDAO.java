@@ -263,7 +263,7 @@ public class CompanyDAO {
 		Connection con = getConnection(); // 데이터베이스 연결
 		PreparedStatement pstmt = null;
 
-		if(!isCheckin(id)) {
+		if(isCheckin(id)) {
 			System.out.println("아직 출근하지 않았습니다.");
 			return;
 		}
@@ -282,6 +282,7 @@ public class CompanyDAO {
 			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
 			pstmt.setString(3, id); // 세 번째 ?에 아이디 설정
 			pstmt.executeUpdate(); // SQL 쿼리 실행
+			 System.out.println("퇴근하셨습니다.");
 		} catch (SQLException e) {
 			e.printStackTrace(); // SQL 실행 중 예외 처리
 		} finally {
@@ -463,7 +464,17 @@ public class CompanyDAO {
 				pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
 				pstmt.setString(3, id); // 세 번째 ?에 아이디 설정
 				pstmt.executeUpdate(); // SQL 쿼리 실행
-
+				
+				//출결 로그 테이블에서 데이터 삭제
+				String sql5 = "delete from attendance_log";
+				pstmt = con.prepareStatement(sql5);
+				pstmt.executeUpdate();
+				
+				//휴가 로그 테이블에서 데이터 삭제
+				String sql6 = "delete from vacation";
+				pstmt = con.prepareStatement(sql6);
+				pstmt.executeUpdate();
+				
 				// 회사 테이블에서 데이터를 삭제
 				String sql2 = "delete from company where id = ?";
 				pstmt = con.prepareStatement(sql2); // SQL 쿼리 준비
@@ -516,7 +527,7 @@ public class CompanyDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
-		boolean ischeckin = false;
+		boolean ischeckin = true;
 		
 		String sql = "select * from company_status where id = ? and (status = '출근' or status = '지각')";
 		
@@ -528,7 +539,7 @@ public class CompanyDAO {
 			rs = pstmt.executeQuery();
 			
 			if(rs.next()) {		//지각,출근의 데이터가 있으면 true로 반환
-				ischeckin = true;
+				ischeckin = false;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
