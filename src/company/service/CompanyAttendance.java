@@ -57,7 +57,6 @@ public class CompanyAttendance implements Company {
                         System.out.println("이미 퇴근하셨습니다.");
                     } else {
                         companyDAO.checkout(id); // 퇴근 체크
-                        System.out.println("퇴근하셨습니다.");
                     }
                 } else if (n == 3) {
                 	Date today = new Date();
