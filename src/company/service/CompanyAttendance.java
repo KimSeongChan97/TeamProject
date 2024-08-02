@@ -1,5 +1,10 @@
 package company.service;
 
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Formatter;
 import java.util.Scanner;
 import company.dao.CompanyDAO;
 
@@ -53,14 +58,43 @@ public class CompanyAttendance implements Company {
                         companyDAO.checkout(id); // 퇴근 체크
                     }
                 } else if (n == 3) {
-                    System.out.print("휴가 일수를 입력하세요: ");
-                    int days = sc.nextInt();
-                    System.out.print("휴가 시작 날짜(YYYY-MM-DD): ");
-                    String startDate = sc.next();
-                    System.out.print("휴가 종료 날짜(YYYY-MM-DD): ");
-                    String endDate = sc.next();
-                    companyDAO.setVacation(id, days, startDate, endDate); // 휴가 설정
-                    System.out.println("휴가 일수가 설정되었습니다. 상태가 '휴가'로 변경되었습니다.");
+                	Date today = new Date();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    String format_Date = dateFormat.format(today);
+
+                    String start_day = null; 
+                    String end_day = null;   
+
+                	while (true) {
+                        System.out.print("휴가 일수를 입력하세요: ");
+                        int days = sc.nextInt();
+                        sc.nextLine(); // 버퍼 비우기 (nextInt() 후에 남은 개행 문자 제거) 안지우면 오늘 이전 안된다는 출력문 뜸
+
+                        while (start_day == null) { 
+                            System.out.print("휴가 시작 날짜(YYYY-MM-DD): ");
+                            String startDate = sc.nextLine();
+                            if (startDate.compareTo(format_Date) < 0) {
+                                System.out.println("휴가 시작 날짜는 오늘 이전일 수 없습니다.");
+                            } else {
+                                start_day = startDate; //startDate를 start_day에 저장
+                            }
+                        }
+
+                        while (end_day == null) { 
+                            System.out.print("휴가 종료 날짜(YYYY-MM-DD): ");
+                            String endDate = sc.nextLine();
+                            if (endDate.compareTo(start_day) < 0) {
+                                System.out.println("휴가 종료 날짜는 휴가 시작 날짜보다 이전일 수 없습니다.");
+                            } else {
+                                end_day = endDate; //endDate를 end_day에 저장
+                            }
+                        }
+
+                        companyDAO.setVacation(id, days, start_day, end_day); // 휴가 설정
+                        System.out.println("휴가가 등록되었습니다");
+                        break;
+                    }
+                    
                 } else if (n == 4) {
                     companyDAO.getVacationDetails(id); // 휴가 상세 정보 조회
                 } else {

@@ -412,7 +412,8 @@ public class CompanyDAO {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		boolean onVacation = false; // 휴가 여부를 저장할 변수
-		String sql = "SELECT * FROM vacation WHERE id = ? AND start_date <= sysdate AND end_date >= sysdate";
+		//trunc() 함수는 시간 정보를 제거하여 오늘 날짜의 자정(00:00:00)을 나타낸대요
+		String sql = "SELECT * FROM vacation WHERE id = ? AND start_date <= TRUNC(sysdate) and end_date >= trunc(sysdate)"; 
 		try {
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
 			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
@@ -499,6 +500,8 @@ public class CompanyDAO {
 			closeResources(rs, pstmt, con); // 자원 해제
 		}
 	}
+
+
 
 	//------------------------------------------------------------------------
 }
