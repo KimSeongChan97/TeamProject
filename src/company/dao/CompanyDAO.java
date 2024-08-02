@@ -262,6 +262,11 @@ public class CompanyDAO {
 	public void checkout(String id) {
 		Connection con = getConnection(); // 데이터베이스 연결
 		PreparedStatement pstmt = null;
+
+		if(!isCheckin(id)) {
+			System.out.println("아직 출근하지 않았습니다.");
+			return;
+		}
 		if (isOnVacation(id)) {
 			System.out.println("현재 휴가 중입니다. 퇴근할 수 없습니다.");
 			return;
@@ -504,7 +509,41 @@ public class CompanyDAO {
 			closeResources(rs, pstmt, con); // 자원 해제
 		}
 	}
-
+	//------------------------------------------------------------------------
+	//퇴근 시 출근 여부 확인메소드
+	public boolean isCheckin(String id) {
+		Connection con = getConnection(); // 데이터베이스 연결
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		boolean ischeckin = false;
+		
+		String sql = "select * from company_status where id = ? and (status = '출근' or status = '지각')";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {		//지각,출근의 데이터가 있으면 true로 반환
+				ischeckin = true;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+	        try {
+	            if (rs != null) rs.close();
+	            if (pstmt != null) pstmt.close();
+	            if (con != null) con.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+		return ischeckin;
+	}
 
 
 	//------------------------------------------------------------------------
