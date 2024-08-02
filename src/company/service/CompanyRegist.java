@@ -35,7 +35,7 @@ public class CompanyRegist implements Company {
         // 사용자로부터 비밀번호와 전화번호 입력 받기
         System.out.print("비밀번호 : ");
         String pw = sc.next();
-        System.out.print("전화번호 : ");
+        System.out.print("전화번호(010-0000-0000) : ");
         String phone = sc.next();
         
         // 입력받은 정보로 새로운 직원 등록
