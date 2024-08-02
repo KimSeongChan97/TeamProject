@@ -1,10 +1,11 @@
 -- 사원 테이블
 CREATE TABLE company (
-    name VARCHAR2(15) NOT NULL, -- 사원 이름
-    id VARCHAR2(30) PRIMARY KEY, -- 사원 아이디
-    pw VARCHAR2(30) NOT NULL, -- 사원 비밀번호
-    phone VARCHAR2(30) NOT NULL, -- 사원 전화번호
-    regist_day DATE NOT NULL -- 사원 입사일
+    name VARCHAR2(15) NOT NULL, -- 관리자 or 사원 이름
+    id VARCHAR2(30) PRIMARY KEY, -- 관리자 or 사원 아이디
+    pw VARCHAR2(30) NOT NULL, -- 관리자 or 사원 비밀번호
+    phone VARCHAR2(30) NOT NULL, -- 관리자 or 사원 전화번호
+    regist_day DATE NOT NULL, -- 관리자 or 사원 입사일
+    rank varchar2(1) NOT NULL -- 관리자 or 사원 구분 (관리자 = 0 , 사원 = 1)
 );
 
 -- 출결 체크 테이블

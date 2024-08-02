@@ -37,9 +37,11 @@ public class CompanyRegist implements Company {
         String pw = sc.next();
         System.out.print("전화번호(010-0000-0000) : ");
         String phone = sc.next();
+        System.out.print("관리자 = 0 | 사원 = 1 : ");
+        String rank = sc.next();
         
         // 입력받은 정보로 새로운 직원 등록
-        companyDAO.regist(name, id, pw, phone);
+        companyDAO.regist(name, id, pw, phone, rank);
         
         // 직원 등록 완료 메시지 출력
         System.out.println(name + "님이 입사하셨습니다.");

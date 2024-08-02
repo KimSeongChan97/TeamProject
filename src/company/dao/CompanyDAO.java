@@ -98,17 +98,18 @@ public class CompanyDAO {
 
 	//------------------------------------------------------------------------
 	// 1. 입사 처리 메서드
-	public void regist(String name, String id, String pw, String phone) {
+	public void regist(String name, String id, String pw, String phone, String rank) {
 		Connection con = getConnection(); // 데이터베이스 연결
 		PreparedStatement pstmt = null;
 		try {
 			// 회사 테이블에 새로운 직원 정보 삽입
-			String sql = "insert into company values(?,?,?,?,sysdate)";
+			String sql = "insert into company values(?,?,?,?,sysdate,?)";
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
 			pstmt.setString(1, name); // 첫 번째 ?에 이름 설정
 			pstmt.setString(2, id); // 두 번째 ?에 아이디 설정
 			pstmt.setString(3, pw); // 세 번째 ?에 비밀번호 설정
 			pstmt.setString(4, phone); // 네 번째 ?에 전화번호 설정
+			pstmt.setString(5, rank);
 			pstmt.executeUpdate(); // SQL 쿼리 실행
 		} catch (SQLException e) {
 			e.printStackTrace(); // SQL 실행 중 예외 처리
@@ -195,8 +196,11 @@ public class CompanyDAO {
 
 	//------------------------------------------------------------------------
 	// 출결 체크용 로그인 메서드
-	public String login(String id, String pw) {
-		String name = null;        
+	public CompanyDTO login(String id, String pw) {
+		String name = null;  
+		String rank = null;
+		CompanyDTO companyDTO = null;
+		
 		Connection con = getConnection(); // 데이터베이스 연결
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -207,14 +211,20 @@ public class CompanyDAO {
 			pstmt.setString(2, pw); // 두 번째 ?에 비밀번호 설정
 			rs = pstmt.executeQuery(); // SQL 쿼리 실행하여 결과 집합 반환
 			while(rs.next()) {
-				name = rs.getString("name"); // 결과 집합에서 이름 추출
+				companyDTO = new CompanyDTO();
+	            companyDTO.setName(rs.getString("name"));
+	            companyDTO.setId(rs.getString("id"));
+	            companyDTO.setPw(rs.getString("pw"));
+	            companyDTO.setPhone(rs.getString("phone"));
+	            companyDTO.setRegist_day(rs.getString("regist_day"));
+	            companyDTO.setRank(rs.getString("rank"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace(); // SQL 실행 중 예외 처리
 		} finally {
 			closeResources(rs, pstmt, con); // 자원 해제
 		}
-		return name; // 로그인된 사용자의 이름 반환
+		return companyDTO; // 로그인된 사용자의 이름 반환
 	}
 
 	//------------------------------------------------------------------------

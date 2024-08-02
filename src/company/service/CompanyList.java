@@ -10,7 +10,7 @@ public class CompanyList implements Company {
     public void execute() {
         // 사원 목록을 출력하는 코드
         System.out.println("이름\t아이디\t입사일\t\t전화번호\t\t출결현황\t지각횟수\t조퇴횟수");
-        System.out.println("----------------------------------------");
+        System.out.println("---------------------------------------------------------------------");
         
         CompanyDAO companyDAO = CompanyDAO.getInstance(); // CompanyDAO의 싱글톤 인스턴스 가져오기
         CompanyDTO companyDTO = new CompanyDTO(); // 사원 목록을 담기 위한 CompanyDTO 객체 생성

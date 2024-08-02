@@ -14,6 +14,8 @@ public class CompanyDTO {
     private String leave_day; //사원 입사일
     private String deleteYN; //탈퇴 여부
     
+    private String rank;
+    
     private String checkIn_Time; //출근시간
     private String checkOut_Time; //퇴근시간
     private String status; //출근 , 퇴근 , 결근 , 지각 등등
