@@ -521,41 +521,52 @@ public class CompanyDAO {
 		}
 	}
 	//------------------------------------------------------------------------
-	//퇴근 시 출근 여부 확인메소드
+	// 퇴근 시 출근 여부 확인 메소드
 	public boolean isCheckin(String id) {
-		Connection con = getConnection(); // 데이터베이스 연결
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		boolean ischeckin = true;
-		
-		String sql = "select * from company_status where id = ? and (status = '출근' or status = '지각')";
-		
-		try {
-			pstmt = con.prepareStatement(sql);
-			
-			pstmt.setString(1, id);
-			
-			rs = pstmt.executeQuery();
-			
-			if(rs.next()) {		//지각,출근의 데이터가 있으면 true로 반환
-				ischeckin = false;
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally {
+	    // 데이터베이스 연결을 위한 Connection 객체 생성
+	    Connection con = getConnection();
+	    // PreparedStatement와 ResultSet 객체 초기화
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    
+	    // 출근 여부를 저장할 변수, 기본값은 true로 설정 (출근하지 않았다고 가정)
+	    boolean ischeckin = true;
+	    
+	    // SQL 쿼리문: 특정 ID의 사원이 '출근' 또는 '지각' 상태인지 확인
+	    String sql = "select * from company_status where id = ? and (status = '출근' or status = '지각')";
+	    
+	    try {
+	        // PreparedStatement 객체에 SQL 쿼리문 설정
+	        pstmt = con.prepareStatement(sql);
+	        
+	        // SQL 쿼리문의 첫 번째 파라미터에 id 값을 설정
+	        pstmt.setString(1, id);
+	        
+	        // 쿼리 실행 후 결과를 ResultSet 객체에 저장
+	        rs = pstmt.executeQuery();
+	        
+	        // ResultSet 객체에 데이터가 있으면 (즉, '출근' 또는 '지각' 상태이면)
+	        if(rs.next()) {
+	            // 출근 여부를 false로 설정 (출근 또는 지각 상태임을 의미)
+	            ischeckin = false;
+	        }
+	    } catch (SQLException e) {
+	        // SQL 실행 중 예외가 발생한 경우 스택 트레이스를 출력
+	        e.printStackTrace();
+	    } finally {
+	        // 자원 해제를 위해 ResultSet, PreparedStatement, Connection 객체를 닫음
 	        try {
 	            if (rs != null) rs.close();
 	            if (pstmt != null) pstmt.close();
 	            if (con != null) con.close();
 	        } catch (SQLException e) {
+	            // 자원 해제 중 예외가 발생한 경우 스택 트레이스를 출력
 	            e.printStackTrace();
 	        }
 	    }
-		return ischeckin;
+	    // 출근 여부 반환
+	    return ischeckin;
 	}
-
 
 	//------------------------------------------------------------------------
 }
