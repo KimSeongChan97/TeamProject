@@ -228,7 +228,9 @@ public class CompanyDAO {
 		}
 		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') "
 				+ "then '출근' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') "
-				+ "then '지각' else status end, late_count = late_count + 1, checkin_time = sysdate where id = ?";
+				+ "then '지각' else status end,late_count = CASE "
+				+ "WHEN sysdate > TO_DATE(TO_CHAR(sysdate, 'YYYY-MM-DD') || ' 09:00', 'YYYY-MM-DD HH24:MI') THEN late_count + 1 "
+				+ "ELSE late_count END, checkin_time = sysdate where id = ?";
 		try {
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
 			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정
@@ -266,7 +268,9 @@ public class CompanyDAO {
 		}
 		String sql = "update company_status set status = case when id = ? and sysdate <= to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') "
 				+ "then '조퇴' when id = ? and sysdate > to_date(to_char(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') "
-				+ "then '퇴근' else status end, early_leave_count = early_leave_count + 1, checkout_time = sysdate where id = ?";
+				+ "then '퇴근' else status end, early_leave_count = CASE "
+				+ "WHEN sysdate < TO_DATE(TO_CHAR(sysdate, 'YYYY-MM-DD') || ' 18:00', 'YYYY-MM-DD HH24:MI') THEN early_leave_count + 1"
+				+ "ELSE early_leave_count END, checkout_time = sysdate where id = ?";
 		try {
 			pstmt = con.prepareStatement(sql); // SQL 쿼리 준비
 			pstmt.setString(1, id); // 첫 번째 ?에 아이디 설정

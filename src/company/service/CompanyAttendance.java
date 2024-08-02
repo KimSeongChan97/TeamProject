@@ -49,6 +49,7 @@ public class CompanyAttendance implements Company {
                         System.out.println("이미 출근하셨습니다.");
                     } else {
                         companyDAO.checkin(id); // 출근 체크
+                        System.out.println("출근하셨습니다.");
                     }
                 } else if (n == 2) {
                     if (companyDAO.isAlreadyCheckedOut(id)) {
@@ -56,6 +57,7 @@ public class CompanyAttendance implements Company {
                         System.out.println("이미 퇴근하셨습니다.");
                     } else {
                         companyDAO.checkout(id); // 퇴근 체크
+                        System.out.println("퇴근하셨습니다.");
                     }
                 } else if (n == 3) {
                 	Date today = new Date();
